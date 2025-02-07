@@ -12,7 +12,7 @@ Currently, two official plugins are available:
 
 v1.2
 New Update
-- Now can play on Android too.
+- Now can play on Phone too.
 - Fixing some bugs.
 - Adjustment for states management.
 
