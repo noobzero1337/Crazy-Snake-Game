@@ -16,4 +16,4 @@ New Update
 - Fixing some bugs.
 - Adjustment for states management.
 
-Credit by noobzero1337
+Made by noobzero1337
