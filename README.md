@@ -12,7 +12,8 @@ Currently, two official plugins are available:
 
 v1.2
 New Update
-- Now Can play on Android Too.
-- Adjustment for state management.
+- Now can play on Android too.
+- Fixing some bugs.
+- Adjustment for states management.
 
 Credit by noobzero1337
