@@ -8,7 +8,7 @@ Currently, two official plugins are available:
 - [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
 
-# Crazy Snake
+# The Crazy Snake
 
 v1.2
 New Update
@@ -16,4 +16,9 @@ New Update
 - Fixing some bugs.
 - Adjustment for states management.
 
-Made by noobzero1337
+## Documentation
+![img1Project4](https://github.com/user-attachments/assets/81cb31dc-d94e-4b09-8cad-d2d28f4e706b)
+![img2Project4](https://github.com/user-attachments/assets/0e127cf0-d635-4480-be63-a6ed02df6a3a)
+
+
+#### Made by noobzero1337
