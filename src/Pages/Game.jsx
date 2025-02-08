@@ -708,7 +708,7 @@ const Game = () => {
       </Stage>
       </Row>
         {controlType === "Phone" && (
-        <Row className="d-flex align-items-center justify-content-center mt-4">
+        <Row className="d-flex align-items-center justify-content-center mt-5">
           <div className="on-screen-controls" style={{ display: "flex", justifyContent: "center", marginBottom: "10px" }}>
           <div style={{ display: "grid", gridTemplateRows: "repeat(3, 45px)", gridGap: "10px", justifyItems: "center" }}>
               <Button 
@@ -721,26 +721,26 @@ const Game = () => {
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <Button 
                   onClick={() => handleMove("LEFT")} 
-                  style={{ width: "3rem", marginRight: "4rem" }}
+                  style={{ width: "3rem", marginRight: "10px" }}
                   className="control-button"
                   >
                   <FontAwesomeIcon icon={faArrowLeft} />
                 </Button>
                 <Button 
-                  onClick={() => handleMove("RIGHT")} 
-                  style={{ width: "3rem" }}
-                  className="control-button"
-                  >
-                  <FontAwesomeIcon icon={faArrowRight} />
-                </Button>
-              </div>
-              <Button 
                 onClick={() => handleMove("DOWN")} 
                 style={{width: "3rem" }}
                 className="control-button"
                 >
                 <FontAwesomeIcon icon={faArrowDown} />
               </Button>
+                <Button 
+                  onClick={() => handleMove("RIGHT")} 
+                  style={{ width: "3rem", marginLeft: "10px" }}
+                  className="control-button"
+                  >
+                  <FontAwesomeIcon icon={faArrowRight} />
+                </Button>
+              </div>
             </div>
           </div>
         </Row>

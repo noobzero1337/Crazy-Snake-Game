@@ -1,0 +1,190 @@
+.game-container {
+    text-align: center;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    background: gray;
+    overflow-y: auto;
+}
+
+.cell {
+    width: 20px;
+    height: 20px;
+    box-sizing: border-box;
+}
+
+.lose {
+    color: red;
+    text-align: center;
+    margin: 0;
+    width: 100%;
+    display: block; 
+}
+
+.modal-title {
+    width: 100%; 
+    display: flex; 
+    justify-content: center; 
+}
+  
+.name-game {
+    color: green;
+}
+
+.play-again-button {
+    border-top-left-radius: 0px; 
+    border-top-right-radius: 0px; 
+    border-bottom-left-radius: 0px; 
+    border-bottom-right-radius: 0px; 
+}
+
+.main-menu-button {
+    border-top-left-radius: 0px; 
+    border-top-right-radius: 0px; 
+    border-bottom-left-radius: 6px; 
+    border-bottom-right-radius: 6px; 
+
+}
+
+.back-button {
+    width: 20%;
+    border-top-left-radius: 6px; 
+    border-top-right-radius: 6px; 
+    border-bottom-left-radius: 6px; 
+    border-bottom-right-radius: 6px; 
+}
+
+.background {
+    height: 100vh; /* Full screen height */
+    background: linear-gradient(to bottom, #1e3c72, #2a5298); /* Gradient colors */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.title {
+    margin-bottom: 2em;
+    color: red;
+}
+
+.food-image {
+    max-width: 1.5rem;
+    height: auto;
+}
+  
+@media (max-width: 768px) {
+    .food-image {
+      width: 1.2rem; 
+    }
+}
+
+@media (max-width: 480px) {
+    .food-image {
+      width: 1rem; 
+    }
+}
+  
+/* Gradient text for the title */
+.gradient-title {
+    font-size: 64px;
+    font-weight: bold;
+    background: linear-gradient(to right, #ff6a00, #ee0979); /* Gradient colors */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 50px;
+}
+
+.icon-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    width: auto;
+    margin: 0 10px;
+}
+
+.button-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.button-width {
+    width: 80%;
+}
+  
+.button-icon {
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+  
+.button-text {
+    font-size: 14px;
+}
+  
+.button-group {
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    justify-content: center;
+    gap: 20px; 
+}
+  
+.menu-button {
+    width: 200px; 
+    padding: 10px 0;
+    font-size: 18px;
+    text-align: center;
+    border-radius: 8px;
+    border: none;
+    background-color: green;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.menu-button:hover {
+    background-color: darkgreen; 
+}
+
+.back-button-ingame {
+    width: 20%; 
+    padding: 5px 0;
+    border-top-left-radius: 6px; 
+    border-top-right-radius: 6px; 
+    border-bottom-left-radius: 6px; 
+    border-bottom-right-radius: 6px; 
+}
+
+.control-button {
+    touch-action: none;
+    outline: none; 
+}
+
+.control-button:focus {
+    outline: none; 
+}
+
+@media (max-width: 768px) {
+    .button-no-focus:focus {
+        outline: none; /* Remove focus outline */
+        background-color: red;
+    }
+}
+
+.control-button:hover {
+    background-color: #0056b3; 
+    color: white; 
+}
+
+.pause-button {
+    width: 4.5rem;
+    padding: 5px 0;
+}
+
+.info {
+    font-weight: bold;
+    color: orange;
+}
+  
