@@ -23,6 +23,7 @@ New Update
 🔥New🔥
 ![img2Project4](https://github.com/user-attachments/assets/c2c9c86f-6890-49d0-975a-b9082ccf4713)
 ![img3Project4](https://github.com/user-attachments/assets/7e8f365a-d81a-4299-acc4-8b2c9d739562)
+![phone-view-snake-game](https://github.com/user-attachments/assets/27845e9e-8340-48d9-a948-e321d87447bc)
 
 
 #### Made by noobzero1337
