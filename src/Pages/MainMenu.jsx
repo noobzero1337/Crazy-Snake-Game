@@ -5,10 +5,6 @@ import { useNavigate } from "react-router-dom";
 const MainMenu = () => {
     const navigate = useNavigate();
 
-    const handlePlay = () => navigate("/game");
-    const handleHowToPlay = () => navigate("/how2play");
-    const handleSelectControl = () => navigate("/controlselect");
-
     const getStoredControl = () => {
       const storedData = localStorage.getItem('selectedControl');
       const storedTime = localStorage.getItem('selectedControlTime');
@@ -32,6 +28,12 @@ const MainMenu = () => {
       const activeControl = getStoredControl(); // Get the stored control
       console.log("Active Control:", activeControl); // Log the active control
   }, []);
+
+    const controlSelected = getStoredControl();
+
+    const handlePlay = () => navigate(`/game?control=${controlSelected}`);
+    const handleHowToPlay = () => navigate(`/how2play`);
+    const handleSelectControl = () => navigate(`/controlselect`);
 
   return (
     <div className="background">
