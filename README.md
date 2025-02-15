@@ -10,17 +10,19 @@ Currently, two official plugins are available:
 
 # The Crazy Snake
 
-v1.2
+v1.0.3
 New Update
-- Now can play on Phone too.
-- Fixing some bugs.
-- Adjustment for states management.
+- Added Controlls Type on Params of Game Page.
+- Adjustment on Control Pad for Phone
 
 ## Documentation
 ![img1Project4](https://github.com/user-attachments/assets/81cb31dc-d94e-4b09-8cad-d2d28f4e706b)
 ![img4Project4](https://github.com/user-attachments/assets/bc23432d-121c-4773-ae29-a8b581066b95)
 ![img5Project4](https://github.com/user-attachments/assets/7035b3f2-dade-4d5d-93e8-61f184a6247e)
-![img2Project4](https://github.com/user-attachments/assets/0e127cf0-d635-4480-be63-a6ed02df6a3a)
+
+🔥New🔥
+![img2Project4](https://github.com/user-attachments/assets/c2c9c86f-6890-49d0-975a-b9082ccf4713)
+![img3Project4](https://github.com/user-attachments/assets/7e8f365a-d81a-4299-acc4-8b2c9d739562)
 
 
 #### Made by noobzero1337
