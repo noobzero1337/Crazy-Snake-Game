@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useReducer } from "react";
 import { Container, Button, Row } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { Stage, Layer, Rect, Image as KonvaImage } from "react-konva";
@@ -9,6 +9,50 @@ import LoseModal from "../Components/LoseModal";
 import fruit from "../assets/img/fruit.png";
 import potionScore from "../assets/img/potionScore.png";
 
+// Initial state for the game
+const initialGameState = {
+  apple: null,
+  direction: "RIGHT",
+  gameOver: false,
+  score: 0,
+  speed: 200,
+  x3Active: false,
+  showX3Message: false,
+  potionStarted: false,
+  paused: false,
+  cooldown: false,
+  potion: null,
+};
+
+// Reducer function to manage game state
+const gameReducer = (state, action) => {
+  switch (action.type) {
+    case 'SET_APPLE':
+      return { ...state, apple: action.payload };
+    case 'SET_DIRECTION':
+      return { ...state, direction: action.payload };
+    case 'SET_GAME_OVER':
+      return { ...state, gameOver: action.payload };
+    case 'SET_SCORE':
+      return { ...state, score: action.payload };
+    case 'SET_SPEED':
+      return { ...state, speed: action.payload };
+    case 'SET_X3_ACTIVE':
+      return { ...state, x3Active: action.payload };
+    case 'SET_SHOW_X3_MESSAGE':
+      return { ...state, showX3Message: action.payload };
+    case 'SET_POTION_STARTED':
+      return { ...state, potionStarted: action.payload };
+    case 'SET_PAUSED':
+      return { ...state, paused: action.payload };
+    case 'SET_COOLDOWN':
+      return { ...state, cooldown: action.payload };
+    case 'SET_POTION':
+      return { ...state, potion: action.payload };
+    default:
+      return state;
+  }
+};
 
 const Game = () => {
   const getStoredControl = () => {
@@ -34,31 +78,23 @@ const Game = () => {
   const SEGMENT_SIZE = SQUARE_SIZE - 1;
   const navigate = useNavigate();
 
+  // Use useReducer for game state
+  const [gameState, dispatch] = useReducer(gameReducer, initialGameState);
+
+  // Use useState for other variables
   const [boardWidth, setBoardWidth] = useState(1120); // Default width
   const [boardHeight, setBoardHeight] = useState(400); // Default height
   const [snake, setSnake] = useState([]);
-  const [apple, setApple] = useState(null);
-  const [fruitImg, setFruitImg] = useState(null)
+  const [fruitImg, setFruitImg] = useState(null);
   const [potionImg, setPotionImg] = useState(null);
-  const [potion, setPotion] = useState(null);
-  const [direction, setDirection] = useState("RIGHT");
-  const [gameOver, setGameOver] = useState(false);
-  const [score, setScore] = useState(0);
-  const [speed, setSpeed] = useState(200);
-  const [x3Active, setX3Active] = useState(false);
-  const [showX3Message, setShowX3Message] = useState(false);
-  const [potionStarted, setPotionStarted] = useState(false);
-  const [paused, setPaused] = useState(false);
-  const [canPause, setCanPause] = useState(true);
-  const [cooldown, setCooldown] = useState(false);
   const [controlType, setControlType] = useState(getStoredControl);
 
   const potionIntervalTimer = useRef(null);
   const potionDisappearTimer = useRef(null);
   const hideMessageTimer = useRef(null);
   const deactivateMultiplierTimer = useRef(null);
-  const pausedRef = useRef(paused);
-  const gameOverRef = useRef(gameOver);
+  const pausedRef = useRef(gameState.paused);
+  const gameOverRef = useRef(gameState.gameOver);
   const intervalRef = useRef(null); // Store the game loop interval ID
   
   // Function to generate a random snake position and valid direction
@@ -135,6 +171,13 @@ const Game = () => {
     return { x: potionX, y: potionY };
   }
 
+    const handleKeyDown = (e) => {
+    const invalidChars = ["-", "+", "e", "Escape"];
+    if (invalidChars.includes(e.key)) {
+        e.preventDefault();
+    }
+  };
+
   useEffect(() => {
     const updateDimensions = () => {
         // Use visualViewport for accurate visible area, fallback to window
@@ -161,46 +204,46 @@ const Game = () => {
     // Generate snake after dimensions are set
     const { snakeBody, direction: newDirection } = generateRandomSnake();
     setSnake(snakeBody);
-    setDirection(newDirection);
+    dispatch({ type: 'SET_DIRECTION', payload: newDirection });
   }, [boardWidth, boardHeight]);
 
   useEffect(() => {
     // Initialize apple position
-    setApple(generateApple()); 
+    dispatch({ type: 'SET_APPLE', payload: generateApple() });
   }, [boardWidth, boardHeight]);
   
 
   useEffect(() => {
     // Check game state and pause/resume x3 multiplier timers
-    if (gameOver) {
+    if (gameState.gameOver) {
       console.log("Game over, clearing x3 multiplier timers");
       clearTimeout(deactivateMultiplierTimer.current);
       clearTimeout(hideMessageTimer.current);
-      setShowX3Message(false);
-      setX3Active(false);
+      dispatch({ type: 'SET_SHOW_X3_MESSAGE', payload: false });
+      dispatch({ type: 'SET_X3_ACTIVE', payload: false });
       return;
     }
   
-    if (paused) {
+    if (gameState.paused) {
       console.log("Game paused, freezing x3 multiplier timers");
       // Freeze x3 multiplier logic (do not start/resume timers)
       clearTimeout(deactivateMultiplierTimer.current);
       clearTimeout(hideMessageTimer.current);
-      setShowX3Message(false); // Hide multiplier message when paused
+      dispatch({ type: 'SET_SHOW_X3_MESSAGE', payload: false }); // Hide multiplier message when paused
     } else {
       console.log("Game resumed, resuming x3 multiplier logic");
   
       // Resume x3 multiplier logic when the game is resumed
-      if (x3Active) {
+      if (gameState.x3Active) {
         // If the multiplier is active, set timer to deactivate it after 5 seconds
         deactivateMultiplierTimer.current = setTimeout(() => {
-          setX3Active(false);
-          setShowX3Message(true);
+          dispatch({ type: 'SET_X3_ACTIVE', payload: false });
+          dispatch({ type: 'SET_SHOW_X3_MESSAGE', payload: true });
   
           // Hide message after 1 second
           clearTimeout(hideMessageTimer.current);
           hideMessageTimer.current = setTimeout(() => {
-            setShowX3Message(false);
+            dispatch({ type: 'SET_SHOW_X3_MESSAGE', payload: false });
           }, 1000);
         }, 5000); // The multiplier lasts for 5 seconds, adjust as needed
       }
@@ -211,14 +254,14 @@ const Game = () => {
       clearTimeout(deactivateMultiplierTimer.current);
       clearTimeout(hideMessageTimer.current);
     };
-  }, [paused, gameOver, x3Active]);
+  }, [gameState.paused, gameState.gameOver, gameState.x3Active]);
   
   // Function to activate x3 multiplier
   const activateX3Multiplier = () => {
-    if (paused || gameOver) return;
+    if (gameState.paused || gameState.gameOver) return;
 
-    setX3Active(true); // Activate multiplier
-    setShowX3Message(true); // Show "active" message
+    dispatch({ type: 'SET_X3_ACTIVE', payload: true });
+    dispatch({ type: 'SET_SHOW_X3_MESSAGE', payload: true });
 
     // Clear any existing timers
     clearTimeout(deactivateMultiplierTimer.current);
@@ -226,55 +269,55 @@ const Game = () => {
 
     // Timer to deactivate the multiplier after 5 seconds
     deactivateMultiplierTimer.current = setTimeout(() => {
-      setX3Active(false); // Deactivate multiplier
-      setShowX3Message(true); // Show "inactive" message
+      dispatch({ type: 'SET_X3_ACTIVE', payload: false }); // Deactivate multiplier
+      dispatch({ type: 'SET_SHOW_X3_MESSAGE', payload: true }); // Show "inactive" message
 
       // Timer to hide the message after 1 second
       hideMessageTimer.current = setTimeout(() => {
-        setShowX3Message(false);
+        dispatch({ type: 'SET_SHOW_X3_MESSAGE', payload: false });
       }, 1000);
     }, 5000);
   };
 
   useEffect(() => {
     // Skip showing any message on the initial render or if the game hasn't started
-    if (!potionStarted) return;
+    if (!gameState.potionStarted) return;
   
-    console.log("x3Active state changed:", x3Active);
+    console.log("x3Active state changed:", gameState.x3Active);
   
     // Clear any existing timer
     if (hideMessageTimer.current) {
       clearTimeout(hideMessageTimer.current);
     }
   
-    if (x3Active) {
+    if (gameState.x3Active) {
       // When x3 is active, show "active" message and hide it after 1 second
-      setShowX3Message(true);
+      dispatch({ type: 'SET_SHOW_X3_MESSAGE', payload: true });
       hideMessageTimer.current = setTimeout(() => {
-        setShowX3Message(false);
+        dispatch({ type: 'SET_SHOW_X3_MESSAGE', payload: false });
       }, 1000);
     } else {
       // When x3 is inactive, show "inactive" message and hide it after 1 second
-      setShowX3Message(true); // Show "inactive" message
+      dispatch({ type: 'SET_SHOW_X3_MESSAGE', payload: true }); // Show "inactive" message
       hideMessageTimer.current = setTimeout(() => {
-        setShowX3Message(false);
+        dispatch({ type: 'SET_SHOW_X3_MESSAGE', payload: false });
       }, 1000);
     }
-  }, [x3Active, potionStarted]);
+  }, [gameState.x3Active, gameState.potionStarted]);
 
   useEffect(() => {
-    pausedRef.current = paused;
-  }, [paused]);
+    pausedRef.current = gameState.paused;
+  }, [gameState.paused]);
   
   useEffect(() => {
-    gameOverRef.current = gameOver;
-  }, [gameOver]);
+    gameOverRef.current = gameState.gameOver;
+  }, [gameState.gameOver]);
 
     // Cooldown handler
     const startCooldown = () => {
-      setCooldown(true);
+      dispatch({ type: 'SET_COOLDOWN', payload: true });
       setTimeout(() => {
-        setCooldown(false);
+        dispatch({ type: 'SET_COOLDOWN', payload: false });
       }, 200); // 0.2-second cooldown
     };
 
@@ -283,28 +326,24 @@ const Game = () => {
     if (controlType === "Phone") return;
 
     const handleKeyDown = (e) => {
-      if (e.key === " " && !cooldown) {
+      if (e.key === " " && !gameState.cooldown) {
         // Toggle pause state
-        setPaused((prevPaused) => {
-          // Toggle paused state and start cooldown
-          const newPausedState = !prevPaused;
-          startCooldown();
-          return newPausedState;
-        });
-      } else if (!paused) {
+        dispatch({ type: 'SET_PAUSED', payload: !gameState.paused });
+        startCooldown();
+      } else if (!gameState.paused) {
         // Only allow direction changes if not paused
         switch (e.key) {
           case "ArrowUp":
-            if (direction !== "DOWN") setDirection("UP");
+            if (gameState.direction !== "DOWN") dispatch({ type: 'SET_DIRECTION', payload: "UP" });
             break;
           case "ArrowDown":
-            if (direction !== "UP") setDirection("DOWN");
+            if (gameState.direction !== "UP") dispatch({ type: 'SET_DIRECTION', payload: "DOWN" });
             break;
           case "ArrowLeft":
-            if (direction !== "RIGHT") setDirection("LEFT");
+            if (gameState.direction !== "RIGHT") dispatch({ type: 'SET_DIRECTION', payload: "LEFT" });
             break;
           case "ArrowRight":
-            if (direction !== "LEFT") setDirection("RIGHT");
+            if (gameState.direction !== "LEFT") dispatch({ type: 'SET_DIRECTION', payload: "RIGHT" });
             break;
           default:
             break;
@@ -314,61 +353,53 @@ const Game = () => {
   
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [direction, paused, canPause, cooldown, controlType]);
+  }, [gameState.direction, gameState.paused, gameState.cooldown, controlType]);
 
   const handleMove = (newDirection) => {
-    // Update direction for on-screen button press
     switch (newDirection) {
       case "UP":
-        if (direction !== "DOWN") setDirection("UP");
+        if (gameState.direction !== "DOWN") dispatch({ type: 'SET_DIRECTION', payload: "UP" });
         break;
       case "DOWN":
-        if (direction !== "UP") setDirection("DOWN");
+        if (gameState.direction !== "UP") dispatch({ type: 'SET_DIRECTION', payload: "DOWN" });
         break;
       case "LEFT":
-        if (direction !== "RIGHT") setDirection("LEFT");
+        if (gameState.direction !== "RIGHT") dispatch({ type: 'SET_DIRECTION', payload: "LEFT" });
         break;
       case "RIGHT":
-        if (direction !== "LEFT") setDirection("RIGHT");
+        if (gameState.direction !== "LEFT") dispatch({ type: 'SET_DIRECTION', payload: "RIGHT" });
         break;
       default:
         break;
     }
   };
 
-  const handleKeyDown = (e) => {
-    const invalidChars = ["-", "+", "e", "Escape"];
-    if (invalidChars.includes(e.key)) {
-        e.preventDefault();
-    }
-  };
-
   const handlePause = () => {
     // Toggle paused state
     if (controlType === "Phone") {
-      setPaused((prevPaused) => !prevPaused); // Call handlePause only for Phone
+      dispatch({ type: 'SET_PAUSED', payload: !gameState.paused }); // Dispatch action to toggle pause state
     }
   };
 
   // Game loop
   useEffect(() => {
       // Stop the game immediately if paused or gameOver
-  if (gameOver || paused) {
+  if (gameState.gameOver || gameState.paused) {
     console.log("Game is paused or over, stopping interval...");
     clearInterval(intervalRef.current);
     return;  // Exit early to prevent any further game logic
   }
-    console.log("Direction:", direction);
+    console.log("Direction:", gameState.direction);
     console.log("Snake Position:", snake[0]);
-    console.log("current speed:", speed);
-    console.log("Potion: ", potion);
+    console.log("current speed:", gameState.speed);
+    console.log("Potion: ", gameState.potion);    
+
     intervalRef.current = setInterval(() => {
       setSnake((prevSnake) => {
         let newSnake = [...prevSnake];
         let head = { ...newSnake[0] };
 
-        // Update head position
-        switch (direction) {
+        switch (gameState.direction) {
           case "UP":
             head.y -= SQUARE_SIZE;
             break;
@@ -382,53 +413,39 @@ const Game = () => {
             head.x += SQUARE_SIZE;
             break;
           default:
-            break;
-        }
+            break }
 
         newSnake.unshift(head);
 
-        // Check collision with apple (only once per loop)
-        if (head.x === apple.x && head.y === apple.y) {
-          console.log(`Apple eaten at: x=${apple.x}, y=${apple.y}`);
-          setApple(generateApple(boardWidth, boardHeight)); // Re-generate apple after eating it
-          setScore(score + (x3Active ? 30 : 10)); // Increase score by 10
-          setSpeed(Math.max(speed - 10, 100));
+        if (head.x === gameState.apple.x && head.y === gameState.apple.y) {
+          dispatch({ type: 'SET_APPLE', payload: generateApple() });
+          dispatch({ type: 'SET_SCORE', payload: gameState.score + (gameState.x3Active ? 30 : 10) });
+          dispatch({ type: 'SET_SPEED', payload: Math.max(gameState.speed - 10, 100) });
         } else {
           newSnake.pop(); // Remove tail if no collision
         }
 
         handlePotionCollision(head);
 
-        // Check collision with walls
-        if (
-          head.x < 0 ||
-          head.x >= boardWidth ||
-          head.y < 0 ||
-          head.y >= boardHeight
-        ) {
-          setGameOver(true);
+        if (head.x < 0 || head.x >= boardWidth || head.y < 0 || head.y >= boardHeight) {
+          dispatch({ type: 'SET_GAME_OVER', payload: true });
           clearInterval(intervalRef.current);
         }
 
-        // Check collision with itself
-        if (
-          newSnake.slice(1).some(
-            (segment) => segment.x === head.x && segment.y === head.y
-          )
-        ) {
-          setGameOver(true);
+        if (newSnake.slice(1).some(segment => segment.x === head.x && segment.y === head.y)) {
+          dispatch({ type: 'SET_GAME_OVER', payload: true });
           clearInterval(intervalRef.current);
         }
 
         return newSnake;
       });
-    }, speed);
+    }, gameState.speed);
 
     return () => clearInterval(intervalRef.current);
-  }, [direction, apple, potion, gameOver, boardWidth, paused, speed, x3Active]);
+  }, [gameState.direction, gameState.apple, gameState.potion, gameState.gameOver, boardWidth, gameState.paused, gameState.speed, gameState.x3Active]);
 
-  pausedRef.current = paused;
-  gameOverRef.current = gameOver;
+  pausedRef.current = gameState.paused;
+  gameOverRef.current = gameState.gameOver;
 
   console.log("Paused:", pausedRef.current);
   console.log("Game Over:", gameOverRef.current);
@@ -454,20 +471,20 @@ const Game = () => {
 
   // Clear or freeze timers based on game state
   useEffect(() => {
-    if (gameOver) {
+    if (gameState.gameOver) {
       console.log("Game over, clearing all timers");
       clearTimeout(potionIntervalTimer.current);
       clearTimeout(potionDisappearTimer.current);
       return;
     }
   
-    if (paused) {
+    if (gameState.paused) {
       console.log("Game paused, freezing timers");
       // Do nothing to timers on pause
     } else {
       console.log("Game resumed, resuming potion logic");
       // Resume or start timers
-      if (!potion) {
+      if (!gameState.potion) {
         startPotionInterval(); // Start potion spawn if none exists
       } else {
         startPotionDisappearTimer(); // Resume disappearance timer if potion exists
@@ -475,24 +492,24 @@ const Game = () => {
     }
   
     return () => {
-      if (gameOver) {
+      if (gameState.gameOver) {
         clearTimeout(potionIntervalTimer.current);
         clearTimeout(potionDisappearTimer.current);
       }
     };
-  }, [paused, gameOver]);
+  }, [gameState.paused, gameState.gameOver]);
 
   // Start interval for potion rendering
   const startPotionInterval = () => {
-    if (paused || gameOver) return;
+    if (gameState.paused || gameState.gameOver) return;
 
     const appearTime = Math.random() * 5000 + 15000; // 15-20 seconds
 
     clearTimeout(potionIntervalTimer.current);
 
     potionIntervalTimer.current = setTimeout(() => {
-      if (!paused && !gameOver) {
-        setPotion(generatePotion());
+      if (!gameState.paused && !gameState.gameOver) {
+        dispatch({ type: 'SET_POTION', payload: generatePotion() });
         startPotionDisappearTimer(); // Start disappearance timer
       }
     }, appearTime);
@@ -501,15 +518,15 @@ const Game = () => {
 
   // Disappear potion after 15-25 seconds
   const startPotionDisappearTimer = () => {
-    if (paused || gameOver || !potion) return;
+    if (gameState.paused || gameState.gameOver || !gameState.potion) return;
 
     const disappearTime = Math.random() * 5000 + 5000; // 5-10 seconds
 
     clearTimeout(potionDisappearTimer.current);
 
     potionDisappearTimer.current = setTimeout(() => {
-      if (!paused && !gameOver) {
-        setPotion(null); // Remove the potion
+      if (!gameState.paused && !gameState.gameOver) {
+        dispatch({ type: 'SET_POTION', payload: null }); // Remove the potion
         startPotionInterval(); // Restart the interval to spawn a new potion after it disappears
       }
     }, disappearTime);
@@ -517,37 +534,37 @@ const Game = () => {
 
   // Handle potion eating
   const handlePotionEaten = () => {
-    setPotion(null); // Remove the potion immediately
+    dispatch({ type: 'SET_POTION', payload: null }); // Remove the potion immediately
     clearTimeout(potionDisappearTimer.current); // Stop the disappearance timer
     startPotionInterval(); // Restart the interval to generate a new potion
   };
 
   // Clear all active timers on pause or game over
   useEffect(() => {
-    if (!paused && !gameOver) {
+    if (!gameState.paused && !gameState.gameOver) {
       startPotionInterval(); // Begin the potion spawning process
     }
     return () => {
       clearTimeout(potionIntervalTimer.current);
       clearTimeout(potionDisappearTimer.current);
     };
-  }, [paused, gameOver]);
+  }, [gameState.paused, gameState.gameOver]);
 
   useEffect(() => {
-    if (potion) {
+    if (gameState.potion) {
       startPotionDisappearTimer(); // Start disappearance timer when a potion appears
     }
     return () => {
       clearTimeout(potionDisappearTimer.current); // Clear timer when potion is removed
     };
-  }, [potion]);
+  }, [gameState.potion]);
 
   // Handle potion collision and activate x3 multiplier
   const handlePotionCollision = (head) => {
-    if (potion && head.x === potion.x && head.y === potion.y) {
-      setPotion(null);
+    if (gameState.potion && head.x === gameState.potion.x && head.y === gameState.potion.y) {
+      dispatch({ type: 'SET_POTION', payload: null });
       handlePotionEaten();
-      setPotionStarted(true);
+      dispatch({ type: 'SET_POTION_STARTED', payload: true });
       activateX3Multiplier(); // Activate multiplier and display message
     }
   };
@@ -555,7 +572,7 @@ const Game = () => {
   useEffect(() => {
     const newApple = generateApple(boardWidth, boardHeight);
     console.log("Generated apple:", newApple);  
-    setApple(newApple);
+    dispatch({ type: 'SET_APPLE', payload: newApple });
   }, []);
 
   useEffect(() => {
@@ -589,7 +606,7 @@ const Game = () => {
 
   const handleBack = () => navigate("/")
 
-  const x3Message = x3Active ? "x3 Score is Active" : "x3 Score is Inactive"
+  const x3Message = gameState.x3Active ? "x3 Score is Active" : "x3 Score is Inactive"
   const scaleFactor = 1.2;
   const PCpause = 'Game Paused <br /> (Press "SPACE" again to Resume)';
   const phonePause = 'Game Paused <br /> (Tap Snake Field again to Resume)';
@@ -610,7 +627,7 @@ const Game = () => {
             className="md-4 mt-2" 
             style={{ textAlign: 'center', width: '100%', color:'palegreen', marginBottom: '20px'  }}
             >
-              Score: {score}
+              Score: {gameState.score}
             </h3>
         </div>
       <div 
@@ -622,7 +639,7 @@ const Game = () => {
         marginBottom: "20px"
         }}
       >
-      {paused && (
+      {gameState.paused && (
       <h4
         style={{ color: "orange" }}
         dangerouslySetInnerHTML={{
@@ -631,10 +648,10 @@ const Game = () => {
       />
       )}
       {/* X3 Score Status */}
-      {potionStarted && showX3Message && (
+      {gameState.potionStarted && gameState.showX3Message && (
         <h4
           style={{
-            color: x3Active ? "yellow" : "red",
+            color: gameState.x3Active ? "yellow" : "red",
           }}
         >
           {x3Message}
@@ -642,8 +659,8 @@ const Game = () => {
       )}
       </div>
       <LoseModal 
-      show={gameOver} 
-      score={score} 
+      show={gameState.gameOver} 
+      score={gameState.score} 
       onPlayAgain={handlePlayAgain} 
       onMainMenu={handleMainMenu}
       />
@@ -679,12 +696,12 @@ const Game = () => {
             />
           ))}
           {/* Apple */}
-          {fruitImg && apple && (
+          {fruitImg && gameState.apple && (
               <>
-              {console.log(`Apple rendered at: x=${apple.x}, y=${apple.y}`)}
+              {console.log(`Apple rendered at: x=${gameState.apple.x}, y=${gameState.apple.y}`)}
               <KonvaImage
-                x={apple.x}
-                y={apple.y}
+                x={gameState.apple.x}
+                y={gameState.apple.y}
                 width={SQUARE_SIZE * scaleFactor}
                 height={SQUARE_SIZE * scaleFactor}
                 image={fruitImg} 
@@ -692,12 +709,12 @@ const Game = () => {
             </>
           )}
           {/* Potion */}
-          {potionImg && potion && (
+          {potionImg && gameState.potion && (
               <>
-              {console.log(`Potion rendered at: x=${potion.x}, y=${potion.y}`)}
+              {console.log(`Potion rendered at: x=${gameState.potion.x}, y=${gameState.potion.y}`)}
               <KonvaImage
-                x={potion.x}
-                y={potion.y}
+                x={gameState.potion.x}
+                y={gameState.potion.y}
                 width={SQUARE_SIZE * scaleFactor}
                 height={SQUARE_SIZE * scaleFactor}
                 image={potionImg} 
